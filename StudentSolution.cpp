@@ -26,28 +26,56 @@
 */
 
 /*This will be how the solveProblems function is set up. The student may enter their on  */
-/*
+
 void solveProblems(AcequiaManager& manager)
 {
 	//the student can call the members of the canals object such as name of canal. sourceRegion, and destinationRegion
 	//This could be helpful in informing the students strategy to solve the problem
 	auto canals = manager.getCanals();
+	auto region = manager.getRegions();
 	//students may call to get Region and WaterSource objects to inform decisions 
 
 
 	while(!manager.isSolved && manager.hour!=manager.SimulationMax)
 	{	
 		//enter student code here
+		if(manager.hour == 0) {
+			//North -> South
+			canals[0] -> toggleOpen(true);
+			canals[0] -> setFlowRate(0.5);
+			//East -> North
+			canals[3] -> toggleOpen(true);
+			canals[3] -> setFlowRate(0);
+			//South -> East
+			canals[1] -> toggleOpen(true);
+			canals[1] -> setFlowRate(0.25); 
+		} 
+		else if(manager.hour == 1) {
+			//North is still in Drought 
+			canals[3] -> toggleOpen(true);
+			canals[3] -> setFlowRate(0.5);
 
+			//South has a slight drought
+			canals[0] -> toggleOpen(true);
+			canals[0] -> setFlowRate(0.15);
+
+			//East is still in Drought
+			canals[1] -> toggleOpen(true);
+			canals[1] -> setFlowRate(0.15);
+
+			//Manager uses canal 2 (North -> East)
+			canals[2] -> toggleOpen(true);
+			canals[2] -> setFlowRate(0.15);
+		} 
+		else if(manager.hour == 2) {
+			 
+		}
 
 		manager.nexthour();
 	}
 }
-*/
-
-
 /*example 2 format*/
-
+/*
 void solveProblems(AcequiaManager& manager)
 {
 	auto canals = manager.getCanals();
@@ -78,6 +106,7 @@ void solveProblems(AcequiaManager& manager)
 		manager.nexthour();
 	}
 }
+*/
 
 
 /*example 2*/
@@ -191,4 +220,4 @@ void solveProblems(AcequiaManager& manager)
 		manager.nexthour();
 	}
 }
-*/
+*/ 
