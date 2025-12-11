@@ -1,5 +1,6 @@
 #include "acequia_manager.h"
 #include <iostream>
+#include <algorithm>
 
 /*Instructions for this problem:
 
@@ -32,7 +33,7 @@ void solveProblems(AcequiaManager& manager)
 	//the student can call the members of the canals object such as name of canal. sourceRegion, and destinationRegion
 	//This could be helpful in informing the students strategy to solve the problem
 	auto canals = manager.getCanals();
-	auto region = manager.getRegions();
+	auto regions = manager.getRegions();
 	//students may call to get Region and WaterSource objects to inform decisions 
 
 
@@ -41,34 +42,59 @@ void solveProblems(AcequiaManager& manager)
 		//enter student code here
 		if(manager.hour == 0) {
 			//North -> South
+			double SouthWaterNeed = regions[1] -> waterNeed - regions[1] -> waterLevel;
+			if (SouthWaterNeed > 0) {
 			canals[0] -> toggleOpen(true);
-			canals[0] -> setFlowRate(0.5);
-			//East -> North
-			canals[3] -> toggleOpen(true);
-			canals[3] -> setFlowRate(0);
+			canals[0] -> setFlowRate(std::min(0.5, SouthWaterNeed * 0.01));
+			}
+
 			//South -> East
+			double EastWaterNeed = regions[2] -> waterNeed - regions[2] -> waterLevel;
+			if (EastWaterNeed > 0) {
 			canals[1] -> toggleOpen(true);
-			canals[1] -> setFlowRate(0.25); 
+			canals[1] -> setFlowRate(std::min(0.25, EastWaterNeed * 0.01)); 
 		} 
+	}
 		else if(manager.hour == 1) {
 			//North is still in Drought 
+			double NorthWaterNeed = regions[0] -> waterNeed - regions[0] -> waterLevel;
+			if (NorthWaterNeed > 0) {
 			canals[3] -> toggleOpen(true);
-			canals[3] -> setFlowRate(0.5);
+			canals[3] -> setFlowRate(std::min(0.5, NorthWaterNeed * 0.01));
+			}
 
 			//South has a slight drought
+			double SouthWaterNeed = regions[1] -> waterNeed - regions[1] -> waterLevel;
+			if (SouthWaterNeed > 0) {
 			canals[0] -> toggleOpen(true);
-			canals[0] -> setFlowRate(0.15);
+			canals[0] -> setFlowRate(std::min(0.15, SouthWaterNeed * 0.01));
+			}
 
 			//East is still in Drought
+			double EastWaterNeed = regions[2] -> waterNeed - regions[2] -> waterLevel;
+			if (EastWaterNeed > 0) {
 			canals[1] -> toggleOpen(true);
-			canals[1] -> setFlowRate(0.15);
+			canals[1] -> setFlowRate(std::min(0.15, EastWaterNeed * 0.01));
+			}
 
 			//Manager uses canal 2 (North -> East)
+			if (EastWaterNeed > 0) {
 			canals[2] -> toggleOpen(true);
-			canals[2] -> setFlowRate(0.15);
-		} 
-		else if(manager.hour == 2) {
-			 
+			canals[2] -> setFlowRate(std::min(0.15, EastWaterNeed * 0.01));
+		}
+	} 
+		else if(manager.hour >= 2) { 
+			for (auto canal : canals) {
+				auto destRegion = canal -> destinationRegion;
+				double destWaterNeed = destRegion -> waterNeed - destRegion -> waterLevel;
+
+				if(destWaterNeed > 0) {
+					canal -> toggleOpen(true);
+					canal -> setFlowRate(std::min(0.5, destWaterNeed * 0.01));
+				} else {
+					canal -> toggleOpen(false);
+				}
+			}
 		}
 
 		manager.nexthour();
