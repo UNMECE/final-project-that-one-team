@@ -1,6 +1,7 @@
 #include "acequia_manager.h"
 #include <iostream>
 #include <algorithm>
+#include <cmath>
 
 /*Instructions for this problem:
 
@@ -44,9 +45,12 @@ void solveProblems(AcequiaManager& manager)
 			//North -> South Canal 0
 			double SouthWaterNeed = regions[1] -> waterNeed - regions[1] -> waterLevel;
 			double NorthWaterNeed = regions[0] -> waterNeed - regions[0] -> waterLevel;
+			double EastWaterNeed = regions[2] -> waterNeed - regions[2] -> waterLevel;
+
+
 			if (SouthWaterNeed > 0 && NorthWaterNeed <= 0) {
 			canals[0] -> toggleOpen(true);
-			canals[0] -> setFlowRate(std::min(0.27, SouthWaterNeed * 0.01));
+			canals[0] -> setFlowRate(std::min(0.25, SouthWaterNeed * 0.01));
 			} else { 
 				canals[0] -> toggleOpen(false);
 			}
@@ -61,37 +65,53 @@ void solveProblems(AcequiaManager& manager)
 			}
 	}
 		else if(manager.hour == 1) {
-			//North supply
+
+			double EastWaterNeed = regions[2] -> waterNeed - regions[2] -> waterLevel;
+			double SouthWaterNeed = regions[1] -> waterNeed - regions[1] -> waterLevel;
 			double NorthWaterNeed = regions[0] -> waterNeed - regions[0] -> waterLevel;
+
+			//North supply
 			if (NorthWaterNeed > 0) {
 			canals[3] -> toggleOpen(true);
-			canals[3] -> setFlowRate(std::min(0.5, NorthWaterNeed * 0.01));
+			canals[3] -> setFlowRate(std::min(0.54, NorthWaterNeed * 0.01));
 			} else { 
 				canals[3] -> toggleOpen(false);
 			}
 
 			//North -> South Canal 0
-			double SouthWaterNeed = regions[1] -> waterNeed - regions[1] -> waterLevel;
 			if (SouthWaterNeed > 0) {
+				double surplus = regions[0] -> waterLevel - regions[0] -> waterNeed;
+				double flow = std::min(0.28, std::min(SouthWaterNeed * 0.01, surplus * 0.01));
 			canals[0] -> toggleOpen(true);
-			canals[0] -> setFlowRate(std::min(0.29, SouthWaterNeed * 0.01));
+			canals[0] -> setFlowRate(flow);
 			} else {
 				canals[0] -> toggleOpen(false);
 			}
 
 			//South -> East Canal 1
-			double EastWaterNeed = regions[2] -> waterNeed - regions[2] -> waterLevel;
 			if (EastWaterNeed > 0 && SouthWaterNeed <= 0) {
-			canals[1] -> toggleOpen(true);
-			canals[1] -> setFlowRate(std::min(0.2, EastWaterNeed * 0.01));
+				if(std::abs(EastWaterNeed) > 5) {
+					double surplus = regions[1] -> waterLevel - regions[1] -> waterNeed;
+					double flow = std::min(0.18, std::min(EastWaterNeed * 0.01, surplus * 0.01));
+				canals[1] -> toggleOpen(true);
+				canals[1] -> setFlowRate(flow);
+				} else{ 
+					canals[1] -> toggleOpen(false);
+				}
 			} else { 
 				canals[1] -> toggleOpen(false);
 			}
 
 			//North -> East Canal 2
 			if (EastWaterNeed > 0 && NorthWaterNeed <= 0) {
-			canals[2] -> toggleOpen(true);
-			canals[2] -> setFlowRate(std::min(0.15, EastWaterNeed * 0.01));
+				if(std::abs(EastWaterNeed) > 5) {
+					double surplus = regions[0] -> waterLevel - regions[0] -> waterNeed;
+					double flow = std::min(0.1, std::min(EastWaterNeed * 0.01, surplus * 0.01));
+				canals[2] -> toggleOpen(true);
+				canals[2] -> setFlowRate(flow);
+				} else { 
+					canals[2] -> toggleOpen(false);
+				}
 			} else { 
 				canals[2] -> toggleOpen(false);
 			}
@@ -104,9 +124,16 @@ void solveProblems(AcequiaManager& manager)
 				double destWaterNeed = destRegion -> waterNeed - destRegion -> waterLevel;
 				double sourceSurplus = sourceRegion -> waterLevel - sourceRegion -> waterNeed;
 
+				if(destRegion -> name == "East" && std::abs(destWaterNeed) <= 0) {
+					canal -> toggleOpen(false);
+					continue;
+				}
+
 				if(destWaterNeed > 0 && sourceSurplus > 0) {
+					double flow = std::min(0.23, std::min(destWaterNeed * 0.01, sourceSurplus * 0.01));
+
 					canal -> toggleOpen(true);
-					canal -> setFlowRate(std::min(0.3, destWaterNeed * 0.01));
+					canal -> setFlowRate(flow);
 				} else {
 					canal -> toggleOpen(false);
 				}
